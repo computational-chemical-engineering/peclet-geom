@@ -1,4 +1,8 @@
-// peclet.core.geom — Python authoring for the shared analytic-SDF scene layer.
+// peclet.geom — Python authoring for the shared analytic-SDF scene layer.
+//
+// Was peclet.core.geom (package peclet-core) until the boundary split of suite/docs/CORE_BOUNDARY.md:
+// this is host-only SDF authoring with no MPI in it, and it was unobtainable without an MPI
+// toolchain while it shared a distribution with the halo bindings. Now its own package, with wheels.
 //
 // The missing ergonomic half of suite/docs/archive/ANALYTIC_SDF_GEOMETRY.md: SceneBuilder has been
 // C++ only, so every Python consumer (flow's set_scene, dem's add_analytic_wall / add_scene_shape,
@@ -91,7 +95,8 @@ struct PyScene {
 
 }  // namespace
 
-NB_MODULE(geom, m) {
+NB_MODULE(_geom, m) {
+  m.attr("build_toolchain") = PECLET_GEOM_BUILD_TOOLCHAIN;  // state_hash.py compares like with like
   m.doc() =
       "Analytic-SDF scene authoring: SceneBuilder (leaves + CSG + transforms + instancing), batch "
       "evaluation, lattice baking, and rigid-body mass properties (mass, COM, inertia tensor, "

@@ -1,4 +1,4 @@
-"""Fixed-seed reference runs of every public entry path of the peclet.core Python modules, hashed.
+"""Fixed-seed reference runs of every public entry path of peclet.geom, hashed.
 
 The structural gate of suite/docs/QUALITY_PLAN.md §3.G: a refactor that moves code verbatim must
 leave every final state BYTE-IDENTICAL. This script runs one deterministic scenario per public
@@ -14,8 +14,9 @@ run too; every per-rank array is gathered to rank 0 in
 rank order before hashing, so the hash names carry the rank count (``.np2``). Run at
 OMP_NUM_THREADS=1: the device reductions are order-dependent at more than one thread.
 
-``--modules`` selects ``mpi`` and ``geom`` (default: both). The AMR entry paths (``peclet.amr``,
-the peclet-amr package since 2026-09-10) have the same script in that repository.
+Only ``geom`` here; the halo entry paths have the same script in peclet-halo (the `core` repo),
+and the AMR ones in peclet-amr. Split out of peclet-core 2026-09-21 (suite/docs/CORE_BOUNDARY.md);
+the geom hashes must be BYTE-IDENTICAL across that move, which is what proves it was a move.
 """
 import argparse
 import hashlib
@@ -51,7 +52,7 @@ def gather_rows(comm, a):
 # peclet.core.geom — a CSG scene evaluated on a grid, baked, and its mass properties.
 # ---------------------------------------------------------------------------------------------
 def run_geom(out, comm):
-    from peclet.core import geom
+    from peclet import geom
     if comm is not None and comm.rank != 0:
         return
     s = geom.SceneBuilder()
@@ -79,86 +80,13 @@ def run_geom(out, comm):
 
 
 # ---------------------------------------------------------------------------------------------
-# peclet.core.mpi — ParticleMigrator migrate / gather_ghosts / rebalance and ParticleHalo.
-# ---------------------------------------------------------------------------------------------
-def run_mpi(out, comm):
-    from peclet.core import mpi as core_mpi
-    size, rank = (comm.size, comm.rank) if comm is not None else (1, 0)
-    tag = f".np{size}"
-    origin, extent, cells = [0.0, 0.0, 0.0], [2.0, 1.0, 1.5], [8, 4, 6]
-    mig = core_mpi.ParticleMigrator(origin=origin, extent=extent, cells=cells,
-                                    periodic=[True, True, False])
-    rng = np.random.default_rng(1234 + rank)
-    n = 600
-    # Deliberately spill outside the box (periodic wrap on x/y, clamp on z) and give every particle
-    # a globally-unique id in payload column 0 so the gathered state can be put in canonical order.
-    pos = rng.uniform([-0.3, -0.2, 0.0], [2.3, 1.2, 1.5], size=(n, 3))
-    pay = np.column_stack([rank * n + np.arange(n, dtype=np.float64), rng.normal(size=n),
-                           rng.normal(size=n)])
-
-    def canon(p, q):
-        p, q = gather_rows(comm, p), gather_rows(comm, q)
-        if p is None:
-            return None
-        order = np.argsort(q[:, 0], kind="stable")
-        return p[order], q[order]
-
-    pos2, pay2 = mig.migrate(pos, pay)
-    c = canon(pos2, pay2)
-    if c is not None:
-        out["mpi.migrate" + tag] = sha(*c)
-    gpos, gpay = mig.gather_ghosts(pos2, pay2, 0.35)
-    # Ghost sets are per rank by construction: hash the per-rank arrays in rank order (each
-    # sorted by id, then by position for the periodic images of one particle).
-    gp, gq = gather_rows(comm, gpos), gather_rows(comm, gpay)
-    counts = comm.gather(gpos.shape[0], root=0) if comm is not None else [gpos.shape[0]]
-    if gp is not None:
-        pieces = []
-        off = 0
-        for cnt in counts:
-            p, q = gp[off:off + cnt], gq[off:off + cnt]
-            order = np.lexsort((p[:, 2], p[:, 1], p[:, 0], q[:, 0]))
-            pieces += [p[order], q[order]]
-            off += cnt
-        out["mpi.gather_ghosts" + tag] = sha(*pieces)
-    pos3, pay3 = mig.rebalance(pos2, pay2)
-    c = canon(pos3, pay3)
-    if c is not None:
-        out["mpi.rebalance" + tag] = sha(*c)
-
-    halo = core_mpi.ParticleHalo(origin=origin, extent=extent, cells=cells,
-                                 periodic=[True, True, False])
-    ng = halo.build(pos3, 0.35, include_periodic_self=(size == 1))
-    fpos = halo.forward_positions(pos3)
-    fval = halo.forward(pay3)
-    ghost_field = np.ascontiguousarray(fpos * 0.5 + 1.0)
-    acc = halo.reverse(ghost_field, np.zeros((pos3.shape[0], 3)))
-    # Owned rows keep the canonical id order; ghost rows are sorted per rank (ids in column 0 of
-    # the forwarded payload), in rank order.
-    gp, gv = gather_rows(comm, fpos), gather_rows(comm, fval)
-    counts = comm.gather(int(ng), root=0) if comm is not None else [int(ng)]
-    ca = canon(acc, pay3)
-    if gp is not None:
-        pieces = []
-        off = 0
-        for cnt in counts:
-            p, v = gp[off:off + cnt], gv[off:off + cnt]
-            order = np.lexsort((p[:, 2], p[:, 1], p[:, 0], v[:, 0]))
-            pieces += [p[order], v[order]]
-            off += cnt
-        out["mpi.halo_forward" + tag] = sha(*pieces)
-        out["mpi.halo_reverse" + tag] = sha(*ca)
-
-
-RUNNERS = {"geom": run_geom, "mpi": run_mpi}
+RUNNERS = {"geom": run_geom}
 
 
 def toolchain():
-    """The modules' compiler / version / build type (`peclet.core.mpi.build_toolchain`). Hashes are
-    comparable only between builds of one toolchain (FMA contraction, optimisation level), so a
-    reference recorded elsewhere is SKIPPED, not failed."""
-    from peclet.core import mpi as core_mpi
-    return getattr(core_mpi, "build_toolchain", "unknown")
+    """The module's compiler / version / build type. Hashes are only comparable within one."""
+    from peclet import geom
+    return getattr(geom, "build_toolchain", "unknown")
 
 
 def main():

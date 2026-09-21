@@ -1,0 +1,61 @@
+# peclet-geom — `peclet.geom`, analytic-SDF scene authoring.
+#
+# The family's first HOST-ONLY wheel. It exists because this code was unobtainable without an MPI
+# toolchain while it shared the `peclet-core` distribution with the halo bindings: the sdist builds
+# core/python/CMakeLists.txt, whose `find_package(MPI REQUIRED)` covered both targets even though
+# geom links no MPI. That cost eleven gallery pages and peclet.dem's scene_particle.build().
+# See suite/docs/CORE_BOUNDARY.md for the boundary rule and the migration ladder.
+#
+# Depends on nothing but numpy at runtime, and on the header-only peclet-core geom headers at build
+# time (cmake/PecletDeps.cmake, PECLET_CORE_TAG). No Kokkos, no MPI, no morton.
+
+[build-system]
+requires = ["scikit-build-core>=0.8", "nanobind>=2.0"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "peclet-geom"
+version = "1.0.0"
+description = "peclet.geom — analytic-SDF scene authoring: CSG trees, batch evaluation, lattice baking, rigid-body mass properties"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "E.A.J.F. Peters", email = "e.a.j.f.peters@tue.nl" }]
+keywords = ["signed distance field", "SDF", "CSG", "constructive solid geometry", "computational geometry", "rigid body", "inertia tensor", "mesh-free", "transport phenomena"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Education",
+  "Programming Language :: C++",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+
+dependencies = ["numpy>=1.20"]
+
+[project.urls]
+Homepage = "https://github.com/computational-chemical-engineering/peclet"
+Documentation = "https://computational-chemical-engineering.github.io/peclet/"
+Source = "https://github.com/computational-chemical-engineering/peclet-geom"
+"Examples gallery" = "https://computational-chemical-engineering.github.io/peclet-examples/"
+Issues = "https://github.com/computational-chemical-engineering/peclet-geom/issues"
+
+[tool.scikit-build]
+minimum-version = "0.8"
+cmake.version = ">=3.24"
+# The module lives in python/ (a standalone project); its install rules place peclet/geom/.
+cmake.source-dir = "python"
+wheel.install-dir = "."
+# The wheel's contents come entirely from the CMake install() rules; no auto-discovery.
+wheel.packages = []
+# Self-contained sdist: cmake/ carries the vendored SuiteNanobind and PecletDeps so `pip install
+# peclet-geom` builds with no suite checkout present (the failure core hit from 0.1.0 to 0.6.0).
+sdist.include = ["python", "cmake", "README.md", "LICENSE"]
