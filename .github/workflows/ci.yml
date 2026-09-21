@@ -1,0 +1,51 @@
+name: CI
+
+# The gate that proves the split did what it claims: peclet-geom must build and pass WITHOUT an MPI
+# toolchain and WITHOUT Kokkos on the runner. If either ever creeps back into the dependency
+# closure, this job is where it shows up — a plain ubuntu-latest image has neither.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  no-mpi-no-kokkos:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      # Stated, not assumed: fail loudly if the image turns out to carry MPI, because then this job
+      # would prove nothing about the property it exists to protect.
+      - name: The runner has no MPI and no Kokkos
+        run: |
+          if command -v mpicxx >/dev/null || dpkg -l | grep -q libopenmpi-dev; then
+            echo "::error::this runner HAS an MPI toolchain — the no-MPI gate is vacuous here"; exit 1
+          fi
+          echo "no mpicxx, no libopenmpi-dev — the gate is meaningful"
+
+      - run: pip install numpy pytest nanobind scikit-build-core cmake
+      - name: Build and install (vendored core headers, no siblings present)
+        run: PECLET_VENDOR_DEPS=ON pip install -v .
+
+      - name: Import and exercise SceneBuilder
+        run: |
+          python - <<'PY'
+          from peclet import geom
+          s = geom.SceneBuilder()
+          for n in ("add_leaf", "add_union", "add_difference", "add_intersection",
+                    "principal_frame", "body_properties", "bake", "encode",
+                    "eval", "eval_root", "eval_root_grad"):
+              assert hasattr(s, n), n
+          print("peclet.geom OK:", geom.build_toolchain)
+          PY
+
+      # The byte gate. The reference was recorded from the RELEASED peclet-core 1.0.2 before the
+      # split, so a changed digit means the move was not a move. It SKIPS (77) on a different
+      # toolchain rather than failing, which is why the toolchain is printed above.
+      - name: State-hash byte gate
+        run: OMP_NUM_THREADS=1 python python/state_hash.py --check python/state_hash_reference.json

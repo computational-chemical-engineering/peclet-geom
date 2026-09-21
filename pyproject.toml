@@ -58,4 +58,10 @@ wheel.install-dir = "."
 wheel.packages = []
 # Self-contained sdist: cmake/ carries the vendored SuiteNanobind and PecletDeps so `pip install
 # peclet-geom` builds with no suite checkout present (the failure core hit from 0.1.0 to 0.6.0).
-sdist.include = ["python", "cmake", "README.md", "LICENSE"]
+# NO sdist.include here, deliberately. scikit-build-core takes the sdist from the GIT file list by
+# default, which already excludes build trees via .gitignore — whereas `sdist.include = ["python"]`
+# FORCE-includes, overriding .gitignore, and a local `cmake -B python/build` then rides along:
+# measured 476 KB of CMakeCache and objects carrying absolute paths from the author's machine.
+# docs/RELEASE.md §A3 records this trap for the submodule sdists; the force-include is how it bites.
+# Everything this package needs (python/, cmake/, README, LICENSE, CITATION.cff) is tracked.
+sdist.exclude = ["python/build", "python/build_*", "**/__pycache__", "**/*.so", "dist"]

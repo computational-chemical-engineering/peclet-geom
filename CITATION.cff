@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "peclet-geom: analytic-SDF scene authoring for the peclet suite"
+abstract: >-
+  Header-only C++20 + MPI infrastructure shared across the peclet suite: ORB block domain decomposition,
+  asynchronous ghost-layer exchange (NBX + persistent neighborhood-collective engines, GPU-resident
+  variant), Lagrangian particle migration and ghosts, SDF geometry with VTI I/O, an AMR octree, and
+  dynamic (weighted-ORB) load balancing. Optional Kokkos GPU backends and Python bindings.
+type: software
+authors:
+  - family-names: Peters
+    given-names: "E.A.J.F."
+    alias: Frank
+    orcid: "https://orcid.org/0000-0001-6099-3583"
+    email: e.a.j.f.peters@tue.nl
+    affiliation: "Eindhoven University of Technology"
+version: 1.0.0
+date-released: 2026-09-21
+license: MIT
+# No Zenodo record yet — peclet-geom is new at 1.0.0 (split from peclet-core,
+# suite/docs/CORE_BOUNDARY.md). Add the concept DOI here once the record exists; do NOT
+# inherit peclet-core's, which belongs to a different artifact.
+repository-code: "https://github.com/computational-chemical-engineering/peclet-geom"
+keywords:
+  - signed distance field
+  - constructive solid geometry
+  - computational geometry
+  - rigid body dynamics
+  - inertia tensor
+  - scene authoring
+  - transport phenomena
