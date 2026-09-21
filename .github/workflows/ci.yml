@@ -44,8 +44,24 @@ jobs:
           print("peclet.geom OK:", geom.build_toolchain)
           PY
 
-      # The byte gate. The reference was recorded from the RELEASED peclet-core 1.0.2 before the
-      # split, so a changed digit means the move was not a move. It SKIPS (77) on a different
-      # toolchain rather than failing, which is why the toolchain is printed above.
-      - name: State-hash byte gate
-        run: OMP_NUM_THREADS=1 python python/state_hash.py --check python/state_hash_reference.json
+      # The byte gate. Its reference values are byte-identical to what the RELEASED peclet-core
+      # 1.0.2 produced for peclet.core.geom before the split, so a changed digit means the move was
+      # not a move.
+      #
+      # It is TOOLCHAIN-SPECIFIC and exits 77 ("skipped") against a reference recorded elsewhere —
+      # floating-point results are not comparable across compilers. The reference is recorded on the
+      # author's toolchain, so on a GitHub runner this normally SKIPS, and 77 must not read as a
+      # pass or as a failure. Core expresses the same thing through ctest's SKIP_RETURN_CODE 77;
+      # here it has to be spelled out, because a bare step treats 77 as failure.
+      - name: State-hash byte gate (skips across toolchains, by design)
+        run: |
+          set +e
+          OMP_NUM_THREADS=1 python python/state_hash.py --check python/state_hash_reference.json
+          rc=$?
+          set -e
+          case $rc in
+            0)  echo "::notice::byte gate RAN and matched — same toolchain as the reference" ;;
+            77) echo "::notice::byte gate SKIPPED: this runner's toolchain differs from the reference's."
+                echo "::notice::That is expected here. The gate is enforced locally before a release." ;;
+            *)  echo "::error::byte gate FAILED (exit $rc) — a state hash changed"; exit $rc ;;
+          esac

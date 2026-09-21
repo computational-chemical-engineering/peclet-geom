@@ -91,7 +91,7 @@ def toolchain():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--modules", default="geom,mpi", help="comma-separated subset of geom,mpi")
+    ap.add_argument("--modules", default="geom", help="comma-separated subset of: geom (mpi moved to peclet-halo)")
     ap.add_argument("--save", metavar="FILE", help="write the hashes as JSON")
     ap.add_argument("--check", metavar="FILE", help="compare against a JSON recording")
     args = ap.parse_args()
