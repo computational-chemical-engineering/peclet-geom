@@ -44,6 +44,7 @@ dependencies = ["numpy>=1.20"]
 [project.urls]
 Homepage = "https://github.com/computational-chemical-engineering/peclet"
 Documentation = "https://computational-chemical-engineering.github.io/peclet/"
+Changelog = "https://github.com/computational-chemical-engineering/peclet/blob/main/CHANGELOG.md"
 Source = "https://github.com/computational-chemical-engineering/peclet-geom"
 "Examples gallery" = "https://computational-chemical-engineering.github.io/peclet-examples/"
 Issues = "https://github.com/computational-chemical-engineering/peclet-geom/issues"
