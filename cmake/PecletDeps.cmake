@@ -16,7 +16,7 @@
 include_guard(GLOBAL)
 include(FetchContent)
 
-set(PECLET_CORE_TAG "v1.0.2" CACHE STRING "Vendored core git tag (headers)")
+set(PECLET_CORE_TAG "v1.3.0" CACHE STRING "Vendored core git tag (headers)")
 option(PECLET_VENDOR_DEPS "Force FetchContent-fetch of the core headers (self-contained sdist)" OFF)
 
 function(peclet_sibling_include repo tag sibling_reldir outvar)
