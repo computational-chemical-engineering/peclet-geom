@@ -15,7 +15,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "peclet-geom"
-version = "1.0.0"
+version = "1.0.1"
 description = "peclet.geom — analytic-SDF scene authoring: CSG trees, batch evaluation, lattice baking, rigid-body mass properties"
 readme = "README.md"
 requires-python = ">=3.10"

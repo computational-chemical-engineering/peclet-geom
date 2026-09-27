@@ -14,8 +14,8 @@ authors:
     orcid: "https://orcid.org/0000-0001-6099-3583"
     email: e.a.j.f.peters@tue.nl
     affiliation: "Eindhoven University of Technology"
-version: 1.0.0
-date-released: 2026-09-21
+version: 1.0.1
+date-released: 2026-09-27
 license: MIT
 # No Zenodo record yet — peclet-geom is new at 1.0.0 (split from peclet-core,
 # suite/docs/CORE_BOUNDARY.md). Add the concept DOI here once the record exists; do NOT
