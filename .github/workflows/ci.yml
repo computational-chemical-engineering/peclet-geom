@@ -44,6 +44,11 @@ jobs:
           print("peclet.geom OK:", geom.build_toolchain)
           PY
 
+      # The binding's input validation (python/geom_bindings_checks.hpp) and, once the stub ships a
+      # sync check, every python/test_*.py: run against the installed package.
+      - name: Python tests
+        run: python -m pytest -q -p no:cacheprovider python/test_*.py
+
       # The byte gate. Its reference values are byte-identical to what the RELEASED peclet-core
       # 1.0.2 produced for peclet.core.geom before the split, so a changed digit means the move was
       # not a move.
