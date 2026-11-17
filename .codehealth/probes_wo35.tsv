@@ -1,0 +1,128 @@
+# np	case	before	after	after message (raised) or note
+np0	add_difference.a_neg	raised	raised	ValueError: SceneBuilder::addCsg: node index out of range
+np0	add_difference.b_big	raised	raised	ValueError: SceneBuilder::addCsg: node index out of range
+np0	add_difference.ok	valid	valid	
+np0	add_difference.rotation_zero	silent	raised	ValueError: SceneBuilder.add_difference: |rotation| must be 1 within 1e-3 (a unit quaternion (x, y, z, w), dimensionless), got 0
+np0	add_difference.scale_0	silent	raised	ValueError: SceneBuilder.add_difference: scale must be finite and > 0 (dimensionless), got 0
+np0	add_difference.translation_nan	silent	raised	ValueError: SceneBuilder.add_difference: translation[0] must be finite (length units), got nan
+np0	add_instance.ang_vel_inf	silent	raised	ValueError: SceneBuilder.add_instance: ang_vel[1] must be finite (1/time units), got inf
+np0	add_instance.center_inf	silent	raised	ValueError: SceneBuilder.add_instance: center[0] must be finite (length units; or all three NaN, the default), got inf
+np0	add_instance.center_partnan	silent	raised	ValueError: SceneBuilder.add_instance: center[0] must be finite (length units; or all three NaN, the default), got nan
+np0	add_instance.center_pinned	valid	valid	
+np0	add_instance.lin_vel_nan	silent	raised	ValueError: SceneBuilder.add_instance: lin_vel[0] must be finite (length/time units), got nan
+np0	add_instance.material_neg2	valid	valid	
+np0	add_instance.ok	valid	valid	
+np0	add_instance.root_big	raised	raised	ValueError: SceneBuilder::addInstance: node index out of range
+np0	add_instance.root_neg	raised	raised	ValueError: SceneBuilder::addInstance: node index out of range
+np0	add_instance.rotation_zero	silent	raised	ValueError: SceneBuilder.add_instance: |rotation| must be 1 within 1e-3 (a unit quaternion (x, y, z, w), dimensionless), got 0
+np0	add_instance.scale_0	silent	raised	ValueError: SceneBuilder.add_instance: scale must be finite and > 0 (dimensionless), got 0
+np0	add_instance.scale_neg	silent	raised	ValueError: SceneBuilder.add_instance: scale must be finite and > 0 (dimensionless), got -1
+np0	add_instance.translation_nan	silent	raised	ValueError: SceneBuilder.add_instance: translation[0] must be finite (length units), got nan
+np0	add_intersection.a_neg	raised	raised	ValueError: SceneBuilder::addCsg: node index out of range
+np0	add_intersection.b_big	raised	raised	ValueError: SceneBuilder::addCsg: node index out of range
+np0	add_intersection.ok	valid	valid	
+np0	add_intersection.rotation_zero	silent	raised	ValueError: SceneBuilder.add_intersection: |rotation| must be 1 within 1e-3 (a unit quaternion (x, y, z, w), dimensionless), got 0
+np0	add_intersection.scale_0	silent	raised	ValueError: SceneBuilder.add_intersection: scale must be finite and > 0 (dimensionless), got 0
+np0	add_intersection.translation_nan	silent	raised	ValueError: SceneBuilder.add_intersection: translation[0] must be finite (length units), got nan
+np0	add_leaf.kind_bad	raised	raised	ValueError: unknown leaf kind 'blob' (sphere, box, hollow_cylinder, hollow_cylinder_shell, capsule, torus, cone, ellipsoid, superquadric; grids go through add_grid)
+np0	add_leaf.kind_int	raised	raised	TypeError: add_leaf(): incompatible function arguments. The following argument types are supported:     1. add_leaf(self, kind: str, params: collections.abc.Sequence[float], translation: collections.abc.Sequence[float] = [0.0, 0.0, 0.0], rotation: collections.abc.Sequence[float] = [0.0, 0.0, 0.0, 1.0], scale: 
+np0	add_leaf.ok	valid	valid	
+np0	add_leaf.params_9	silent	raised	ValueError: SceneBuilder.add_leaf: params must be 1 value [r] for kind 'sphere', got 9
+np0	add_leaf.params_empty	silent	raised	ValueError: SceneBuilder.add_leaf: params must be 1 value [r] for kind 'sphere', got 0
+np0	add_leaf.params_inf	silent	raised	ValueError: SceneBuilder.add_leaf: params[0] must be finite and >= 0 (length units), got inf
+np0	add_leaf.params_long	silent	raised	ValueError: SceneBuilder.add_leaf: params must be 1 value [r] for kind 'sphere', got 2
+np0	add_leaf.params_nan	silent	raised	ValueError: SceneBuilder.add_leaf: params[0] must be finite and >= 0 (length units), got nan
+np0	add_leaf.params_neg	silent	raised	ValueError: SceneBuilder.add_leaf: params[0] must be finite and >= 0 (length units), got -0.5
+np0	add_leaf.params_short	silent	raised	ValueError: SceneBuilder.add_leaf: params must be 3 values [hx, hy, hz] for kind 'box', got 1
+np0	add_leaf.params_zero	valid	valid	
+np0	add_leaf.rotation_len3	raised	raised	TypeError: add_leaf(): incompatible function arguments. The following argument types are supported:     1. add_leaf(self, kind: str, params: collections.abc.Sequence[float], translation: collections.abc.Sequence[float] = [0.0, 0.0, 0.0], rotation: collections.abc.Sequence[float] = [0.0, 0.0, 0.0, 1.0], scale: 
+np0	add_leaf.rotation_nan	silent	raised	ValueError: SceneBuilder.add_leaf: rotation[0] must be finite (a quaternion (x, y, z, w), dimensionless), got nan
+np0	add_leaf.rotation_nonunit	silent	raised	ValueError: SceneBuilder.add_leaf: |rotation| must be 1 within 1e-3 (a unit quaternion (x, y, z, w), dimensionless), got 2
+np0	add_leaf.rotation_zero	silent	raised	ValueError: SceneBuilder.add_leaf: |rotation| must be 1 within 1e-3 (a unit quaternion (x, y, z, w), dimensionless), got 0
+np0	add_leaf.scale_0	silent	raised	ValueError: SceneBuilder.add_leaf: scale must be finite and > 0 (dimensionless), got 0
+np0	add_leaf.scale_inf	silent	raised	ValueError: SceneBuilder.add_leaf: scale must be finite and > 0 (dimensionless), got inf
+np0	add_leaf.scale_nan	silent	raised	ValueError: SceneBuilder.add_leaf: scale must be finite and > 0 (dimensionless), got nan
+np0	add_leaf.scale_neg	silent	raised	ValueError: SceneBuilder.add_leaf: scale must be finite and > 0 (dimensionless), got -1
+np0	add_leaf.translation_inf	silent	raised	ValueError: SceneBuilder.add_leaf: translation[1] must be finite (length units), got inf
+np0	add_leaf.translation_len2	raised	raised	TypeError: add_leaf(): incompatible function arguments. The following argument types are supported:     1. add_leaf(self, kind: str, params: collections.abc.Sequence[float], translation: collections.abc.Sequence[float] = [0.0, 0.0, 0.0], rotation: collections.abc.Sequence[float] = [0.0, 0.0, 0.0, 1.0], scale: 
+np0	add_leaf.translation_nan	silent	raised	ValueError: SceneBuilder.add_leaf: translation[0] must be finite (length units), got nan
+np0	add_reframed.ok	valid	valid	
+np0	add_reframed.root_big	raised	raised	ValueError: SceneBuilder::addReframed: node index out of range
+np0	add_reframed.root_neg	raised	raised	ValueError: SceneBuilder::addReframed: node index out of range
+np0	add_reframed.rotation_nan	silent	raised	ValueError: SceneBuilder.add_reframed: rotation[1] must be finite (a quaternion (x, y, z, w), dimensionless), got nan
+np0	add_reframed.scale_neg	silent	raised	ValueError: SceneBuilder.add_reframed: scale must be finite and > 0 (dimensionless), got -2
+np0	add_reframed.translation_inf	silent	raised	ValueError: SceneBuilder.add_reframed: translation[0] must be finite (length units), got inf
+np0	add_union.a_neg	raised	raised	ValueError: SceneBuilder::addCsg: node index out of range
+np0	add_union.b_big	raised	raised	ValueError: SceneBuilder::addCsg: node index out of range
+np0	add_union.ok	valid	valid	
+np0	add_union.rotation_zero	silent	raised	ValueError: SceneBuilder.add_union: |rotation| must be 1 within 1e-3 (a unit quaternion (x, y, z, w), dimensionless), got 0
+np0	add_union.scale_0	silent	raised	ValueError: SceneBuilder.add_union: scale must be finite and > 0 (dimensionless), got 0
+np0	add_union.translation_nan	silent	raised	ValueError: SceneBuilder.add_union: translation[0] must be finite (length units), got nan
+np0	bake.dims_1	raised	raised	ValueError: bake: dims must be >= 2 per axis
+np0	bake.dims_huge	raised	raised	ValueError: SceneBuilder.bake: dims[2] must be such that the node count fits in 64 bits, got 2.14748e+09
+np0	bake.dims_neg	raised	raised	ValueError: bake: dims must be >= 2 per axis
+np0	bake.dims_overflow	crash	raised	ValueError: SceneBuilder.bake: dims[2] must be such that the node count fits in 64 bits, got 4.1943e+06
+np0	bake.ok	valid	valid	
+np0	bake.origin_inf	silent	raised	ValueError: SceneBuilder.bake: origin[1] must be finite (length units), got -inf
+np0	bake.origin_nan	silent	raised	ValueError: SceneBuilder.bake: origin[0] must be finite (length units), got nan
+np0	bake.root_neg	raised	raised	IndexError: root node index out of range
+np0	bake.spacing_0	silent	raised	ValueError: SceneBuilder.bake: spacing[0] must be finite and > 0 (length units), got 0
+np0	bake.spacing_inf	silent	raised	ValueError: SceneBuilder.bake: spacing[0] must be finite and > 0 (length units), got inf
+np0	bake.spacing_nan	silent	raised	ValueError: SceneBuilder.bake: spacing[2] must be finite and > 0 (length units), got nan
+np0	bake.spacing_neg	silent	raised	ValueError: SceneBuilder.bake: spacing[1] must be finite and > 0 (length units), got -0.1
+np0	body_properties.density_0	silent	raised	ValueError: SceneBuilder.body_properties: density must be finite and > 0 (mass/length^3 units), got 0
+np0	body_properties.density_inf	silent	raised	ValueError: SceneBuilder.body_properties: density must be finite and > 0 (mass/length^3 units), got inf
+np0	body_properties.density_nan	silent	raised	ValueError: SceneBuilder.body_properties: density must be finite and > 0 (mass/length^3 units), got nan
+np0	body_properties.density_neg	silent	raised	ValueError: SceneBuilder.body_properties: density must be finite and > 0 (mass/length^3 units), got -1
+np0	body_properties.empty_box	raised	raised	ValueError: bodyProperties: empty box
+np0	body_properties.hi_inf	raised	raised	ValueError: SceneBuilder.body_properties: hi[1] must be finite (length units), got inf
+np0	body_properties.lo_inf	raised	raised	ValueError: SceneBuilder.body_properties: lo[0] must be finite (length units), got -inf
+np0	body_properties.lo_nan	raised	raised	ValueError: SceneBuilder.body_properties: lo[0] must be finite (length units), got nan
+np0	body_properties.n_0	raised	raised	ValueError: bodyProperties: n must be >= 1
+np0	body_properties.n_huge	hang	hang	
+np0	body_properties.n_neg	raised	raised	ValueError: bodyProperties: n must be >= 1
+np0	body_properties.no_solid	raised	raised	RuntimeError: bodyProperties: the field encloses no volume in this box -- check the sign convention (negative inside) and that the box contains the solid
+np0	body_properties.nseg_0	silent	raised	ValueError: SceneBuilder.body_properties: nseg must be an integer in [2, 64] (initial segments per line), got 0
+np0	body_properties.nseg_1	silent	raised	ValueError: SceneBuilder.body_properties: nseg must be an integer in [2, 64] (initial segments per line), got 1
+np0	body_properties.nseg_99	silent	raised	ValueError: SceneBuilder.body_properties: nseg must be an integer in [2, 64] (initial segments per line), got 99
+np0	body_properties.ok	valid	valid	
+np0	body_properties.order_0	silent	raised	ValueError: SceneBuilder.body_properties: order must be a Gauss order in {1, 2, 3, 4, 5, 6, 8} (points per axis), got 0
+np0	body_properties.order_7	silent	raised	ValueError: SceneBuilder.body_properties: order must be a Gauss order in {1, 2, 3, 4, 5, 6, 8} (points per axis), got 7
+np0	body_properties.order_8	valid	valid	
+np0	body_properties.order_99	silent	raised	ValueError: SceneBuilder.body_properties: order must be a Gauss order in {1, 2, 3, 4, 5, 6, 8} (points per axis), got 99
+np0	body_properties.order_neg	silent	raised	ValueError: SceneBuilder.body_properties: order must be a Gauss order in {1, 2, 3, 4, 5, 6, 8} (points per axis), got -1
+np0	body_properties.root_big	raised	raised	IndexError: root node index out of range
+np0	body_properties.root_neg	raised	raised	IndexError: root node index out of range
+np0	encode.empty	valid	valid	
+np0	eval.empty_pts	valid	valid	
+np0	eval.empty_scene	valid	valid	
+np0	eval.n2	raised	raised	TypeError: eval(): incompatible function arguments. The following argument types are supported:     1. eval(self, points: ndarray[dtype=float64, shape=(*, 3), order='C']) -> numpy.ndarray[dtype=float64]  Invoked with types: peclet.geom._geom.SceneBuilder, ndarray
+np0	eval.nan_pts	silent	raised	ValueError: SceneBuilder.eval: points[0, 0] must be finite (length units), got nan
+np0	eval.ok	valid	valid	
+np0	eval_root.nan_pts	silent	raised	ValueError: SceneBuilder.eval_root: points[0, 0] must be finite (length units), got nan
+np0	eval_root.ok	valid	valid	
+np0	eval_root.root_big	raised	raised	IndexError: root node index out of range
+np0	eval_root.root_neg	raised	raised	IndexError: root node index out of range
+np0	eval_root_grad.n4	raised	raised	TypeError: eval_root_grad(): incompatible function arguments. The following argument types are supported:     1. eval_root_grad(self, root: int, points: ndarray[dtype=float64, shape=(*, 3), order='C']) -> tuple  Invoked with types: peclet.geom._geom.SceneBuilder, int, ndarray
+np0	eval_root_grad.ok	valid	valid	
+np0	eval_root_grad.root_neg	raised	raised	IndexError: root node index out of range
+np0	init.arg	raised	raised	TypeError: __init__(): incompatible function arguments. The following argument types are supported:     1. __init__(self) -> None  Invoked with types: peclet.geom._geom.SceneBuilder, int
+np0	init.ok	valid	valid	
+np0	principal_frame.empty_box	raised	raised	ValueError: bodyProperties: empty box
+np0	principal_frame.hi_inf	raised	raised	ValueError: SceneBuilder.principal_frame: hi[1] must be finite (length units), got inf
+np0	principal_frame.lo_inf	raised	raised	ValueError: SceneBuilder.principal_frame: lo[0] must be finite (length units), got -inf
+np0	principal_frame.lo_nan	raised	raised	ValueError: SceneBuilder.principal_frame: lo[0] must be finite (length units), got nan
+np0	principal_frame.n_0	raised	raised	ValueError: bodyProperties: n must be >= 1
+np0	principal_frame.n_huge	hang	hang	
+np0	principal_frame.n_neg	raised	raised	ValueError: bodyProperties: n must be >= 1
+np0	principal_frame.nseg_0	silent	raised	ValueError: SceneBuilder.principal_frame: nseg must be an integer in [2, 64] (initial segments per line), got 0
+np0	principal_frame.nseg_1	silent	raised	ValueError: SceneBuilder.principal_frame: nseg must be an integer in [2, 64] (initial segments per line), got 1
+np0	principal_frame.nseg_99	silent	raised	ValueError: SceneBuilder.principal_frame: nseg must be an integer in [2, 64] (initial segments per line), got 99
+np0	principal_frame.ok	valid	valid	
+np0	principal_frame.order_0	silent	raised	ValueError: SceneBuilder.principal_frame: order must be a Gauss order in {1, 2, 3, 4, 5, 6, 8} (points per axis), got 0
+np0	principal_frame.order_7	silent	raised	ValueError: SceneBuilder.principal_frame: order must be a Gauss order in {1, 2, 3, 4, 5, 6, 8} (points per axis), got 7
+np0	principal_frame.order_8	valid	valid	
+np0	principal_frame.order_99	silent	raised	ValueError: SceneBuilder.principal_frame: order must be a Gauss order in {1, 2, 3, 4, 5, 6, 8} (points per axis), got 99
+np0	principal_frame.order_neg	silent	raised	ValueError: SceneBuilder.principal_frame: order must be a Gauss order in {1, 2, 3, 4, 5, 6, 8} (points per axis), got -1
+np0	principal_frame.root_big	raised	raised	IndexError: root node index out of range
+np0	principal_frame.root_neg	raised	raised	IndexError: root node index out of range
