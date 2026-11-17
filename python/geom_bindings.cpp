@@ -29,7 +29,10 @@
 #include "peclet/core/geom/scene_builder.hpp"
 #include "peclet/core/geom/scene_query.hpp"
 
+#include "geom_bindings_checks.hpp"
+
 namespace nb = nanobind;
+namespace chk = geom_checks;
 namespace g = peclet::core::geom;
 using peclet::core::Quat;
 using peclet::core::Vec3;
@@ -122,9 +125,11 @@ NB_MODULE(_geom, m) {
           "add_leaf",
           [](PyScene& s, const std::string& kind, std::vector<double> params,
              std::array<double, 3> translation, std::array<double, 4> rotation, double scale) {
+            const int leafKind = kindFromName(kind);
+            chk::leaf(leafKind, kind, params, translation, rotation, scale);
             std::initializer_list<double> il{};  // addLeaf takes an initializer_list; go via node
             g::ShapeNode<double> nd;
-            nd.kind = kindFromName(kind);
+            nd.kind = leafKind;
             for (std::size_t i = 0; i < params.size() && i < 8; ++i)
               nd.params[i] = params[i];
             nd.transform = makeTransform(translation, rotation, scale);
@@ -143,7 +148,10 @@ NB_MODULE(_geom, m) {
       .def(
           "add_union",
           [](PyScene& s, int a, int b2, std::array<double, 3> t, std::array<double, 4> q,
-             double sc) { return s.b.addUnion(a, b2, makeTransform(t, q, sc)); },
+             double sc) {
+            chk::transform("SceneBuilder.add_union", t, q, sc);
+            return s.b.addUnion(a, b2, makeTransform(t, q, sc));
+          },
           nb::arg("a"), nb::arg("b"), nb::arg("translation") = std::array<double, 3>{0, 0, 0},
           nb::arg("rotation") = std::array<double, 4>{0, 0, 0, 1}, nb::arg("scale") = 1.0,
           "SDF min of subtrees `a` and `b` (their node indices) -- the shape occupied by either "
@@ -153,7 +161,10 @@ NB_MODULE(_geom, m) {
       .def(
           "add_intersection",
           [](PyScene& s, int a, int b2, std::array<double, 3> t, std::array<double, 4> q,
-             double sc) { return s.b.addIntersection(a, b2, makeTransform(t, q, sc)); },
+             double sc) {
+            chk::transform("SceneBuilder.add_intersection", t, q, sc);
+            return s.b.addIntersection(a, b2, makeTransform(t, q, sc));
+          },
           nb::arg("a"), nb::arg("b"), nb::arg("translation") = std::array<double, 3>{0, 0, 0},
           nb::arg("rotation") = std::array<double, 4>{0, 0, 0, 1}, nb::arg("scale") = 1.0,
           "SDF max of subtrees `a` and `b` (their node indices) -- the shape occupied by both; "
@@ -163,13 +174,17 @@ NB_MODULE(_geom, m) {
       .def(
           "add_difference",
           [](PyScene& s, int a, int b2, std::array<double, 3> t, std::array<double, 4> q,
-             double sc) { return s.b.addDifference(a, b2, makeTransform(t, q, sc)); },
+             double sc) {
+            chk::transform("SceneBuilder.add_difference", t, q, sc);
+            return s.b.addDifference(a, b2, makeTransform(t, q, sc));
+          },
           nb::arg("a"), nb::arg("b"), nb::arg("translation") = std::array<double, 3>{0, 0, 0},
           nb::arg("rotation") = std::array<double, 4>{0, 0, 0, 1}, nb::arg("scale") = 1.0,
           "a minus b.")
       .def(
           "add_reframed",
           [](PyScene& s, int root, std::array<double, 3> t, std::array<double, 4> q, double sc) {
+            chk::transform("SceneBuilder.add_reframed", t, q, sc);
             return s.b.addReframed(root, makeTransform(t, q, sc));
           },
           nb::arg("root"), nb::arg("translation") = std::array<double, 3>{0, 0, 0},
@@ -183,6 +198,7 @@ NB_MODULE(_geom, m) {
           "principal_frame",
           [](PyScene& s, int root, std::array<double, 3> lo, std::array<double, 3> hi, int n,
              int order, int nseg) {
+            chk::quadrature("SceneBuilder.principal_frame", lo, hi, order, nseg);
             const auto bp =
                 g::bodyProperties<double>(s.rootEval(root), Vec3<double>{lo[0], lo[1], lo[2]},
                                           Vec3<double>{hi[0], hi[1], hi[2]}, n, order, nseg);
@@ -206,6 +222,7 @@ NB_MODULE(_geom, m) {
           [](PyScene& s, int root, std::array<double, 3> t, std::array<double, 4> q, double sc,
              std::array<double, 3> lin, std::array<double, 3> ang, std::array<double, 3> cen,
              int material) {
+            chk::instance(t, q, sc, lin, ang, cen);
             return s.b.addInstance(root, makeTransform(t, q, sc),
                                    Vec3<double>{lin[0], lin[1], lin[2]},
                                    Vec3<double>{ang[0], ang[1], ang[2]},
@@ -242,6 +259,7 @@ NB_MODULE(_geom, m) {
       .def(
           "eval",
           [](PyScene& s, nb::ndarray<double, nb::shape<-1, 3>, nb::c_contig> pts) {
+            chk::points("SceneBuilder.eval", pts);
             const g::SceneView<double> sv = s.b.view();
             const std::size_t n = pts.shape(0);
             std::vector<double> out(n);
@@ -256,6 +274,7 @@ NB_MODULE(_geom, m) {
       .def(
           "eval_root",
           [](PyScene& s, int root, nb::ndarray<double, nb::shape<-1, 3>, nb::c_contig> pts) {
+            chk::points("SceneBuilder.eval_root", pts);
             auto f = s.rootEval(root);
             const std::size_t n = pts.shape(0);
             std::vector<double> out(n);
@@ -269,6 +288,7 @@ NB_MODULE(_geom, m) {
       .def(
           "eval_root_grad",
           [](PyScene& s, int root, nb::ndarray<double, nb::shape<-1, 3>, nb::c_contig> pts) {
+            chk::points("SceneBuilder.eval_root_grad", pts);
             const g::SceneView<double> sv = s.b.view();
             if (root < 0 || root >= sv.nodeCount)
               throw std::out_of_range("root node index out of range");
@@ -295,6 +315,7 @@ NB_MODULE(_geom, m) {
           "bake",
           [](PyScene& s, int root, std::array<double, 3> origin, std::array<double, 3> spacing,
              std::array<int, 3> dims) {
+            chk::lattice(origin, spacing, dims);
             auto f = s.rootEval(root);
             const int nx = dims[0], ny = dims[1], nz = dims[2];
             if (nx < 2 || ny < 2 || nz < 2)
@@ -316,6 +337,8 @@ NB_MODULE(_geom, m) {
           "body_properties",
           [](PyScene& s, int root, std::array<double, 3> lo, std::array<double, 3> hi, int n,
              int order, int nseg, double density) {
+            chk::quadrature("SceneBuilder.body_properties", lo, hi, order, nseg);
+            chk::density(density);
             const auto bp = g::bodyProperties<double>(
                 s.rootEval(root), Vec3<double>{lo[0], lo[1], lo[2]},
                 Vec3<double>{hi[0], hi[1], hi[2]}, n, order, nseg, density);
