@@ -51,13 +51,16 @@ void finiteEach(const char* who, const char* name, const std::array<double, N>& 
   }
 }
 
-/// rotation: a quaternion (x, y, z, w), finite and not zero (rotate() assumes a unit quaternion;
-/// the zero quaternion rotates by the identity).
+/// rotation: a unit quaternion (x, y, z, w). rotate() does not normalize: a quaternion of norm
+/// |q| scales every rotated vector by |q|^2 (the zero quaternion collapses to the identity), so the
+/// shape would be silently resized. Admitted: | |q| - 1 | <= kUnitQuatTol, which accepts a
+/// quaternion rounded to four decimals by hand (|q| - 1 ~ 2e-5).
+inline constexpr double kUnitQuatTol = 1e-3;
 inline void rotation(const char* who, const std::array<double, 4>& q) {
   finiteEach(who, "rotation", q, "a quaternion (x, y, z, w), dimensionless");
   const double norm = std::sqrt(q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3]);
-  if (!(norm > 0.0)) {
-    fail(who, "|rotation|", "> 0 (a quaternion (x, y, z, w), dimensionless)", norm);
+  if (!(std::abs(norm - 1.0) <= kUnitQuatTol)) {
+    fail(who, "|rotation|", "1 within 1e-3 (a unit quaternion (x, y, z, w), dimensionless)", norm);
   }
 }
 
