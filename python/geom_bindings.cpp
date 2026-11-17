@@ -116,7 +116,8 @@ NB_MODULE(_geom, m) {
       "flattens both to the (node_ints, node_reals, inst_ints, inst_reals) arrays that "
       "flow.set_scene, dem.add_analytic_wall and dem.add_scene_shape consume; eval()/eval_root() "
       "evaluate the scene directly, for authoring and debugging (solvers evaluate on device from "
-      "the encoded arrays, not through this class).")
+      "the encoded arrays, not through this class). Lengths (sizes, translations, points, boxes) "
+      "are in the caller's consistent length units; scale and quaternions are dimensionless.")
       .def(nb::init<>(),
            "SceneBuilder(): takes no arguments. Starts with an empty node forest and no "
            "instances; build a tree bottom-up with add_leaf and the CSG combinators, place it "
@@ -143,8 +144,9 @@ NB_MODULE(_geom, m) {
           "hollow_cylinder [rOuter,height,thickness] (y axis, distance-exact), "
           "hollow_cylinder_shell [rOuter,rInner,height] (z axis, sign-exact), capsule "
           "[r,halfLength] (y), torus [R,r] (y), cone [rBottom,rTop,halfHeight] (y), ellipsoid "
-          "[rx,ry,rz] (BOUND), superquadric [rx,ry,rz,e] (BOUND). rotation is a quaternion "
-          "(x, y, z, w).")
+          "[rx,ry,rz] (BOUND), superquadric [rx,ry,rz,e] (BOUND): exactly that many values, "
+          "lengths >= 0 (length units), the exponent e > 0. translation in length units; rotation "
+          "is a unit quaternion (x, y, z, w); scale > 0 (dimensionless).")
       .def(
           "add_union",
           [](PyScene& s, int a, int b2, std::array<double, 3> t, std::array<double, 4> q,
@@ -215,8 +217,8 @@ NB_MODULE(_geom, m) {
           nb::arg("nseg") = 8,
           "Measure the subtree's mass properties and return a NEW root whose canonical frame is "
           "the principal body frame (COM at the origin, axes principal) -- the one-call answer to "
-          "'my shape's reference frame is not its principal frame'. The original subtree is "
-          "untouched.")
+          "'my shape's reference frame is not its principal frame'. lo, hi, n, order and nseg as in "
+          "body_properties (lo, hi in length units). The original subtree is untouched.")
       .def(
           "add_instance",
           [](PyScene& s, int root, std::array<double, 3> t, std::array<double, 4> q, double sc,
@@ -237,7 +239,8 @@ NB_MODULE(_geom, m) {
                                                     std::numeric_limits<double>::quiet_NaN()},
           nb::arg("material") = -1,
           "Place a tree in the world; returns the instance index. What flow's set_scene and the "
-          "resolved coupling consume. `center` is the centre of rotation for ang_vel: leave it NaN "
+          "resolved coupling consume. lin_vel in length/time units, ang_vel in 1/time units "
+          "(rad/time). `center` (length units) is the centre of rotation for ang_vel: leave it NaN "
           "(the default) and it FOLLOWS the body (the translation, re-anchored on every "
           "set_instance_transform); give any finite point and it is PINNED there in world "
           "coordinates -- (0, 0, 0) included. (Raw instance arrays keep the legacy reading of an "
@@ -331,7 +334,7 @@ NB_MODULE(_geom, m) {
           },
           nb::arg("root"), nb::arg("origin"), nb::arg("spacing"), nb::arg("dims"),
           "Sample a subtree on a lattice: flat float32, x-fastest (idx = i + j*nx + k*nx*ny), at "
-          "nodes origin + (i,j,k)*spacing -- the layout dem's grid-SDF particles and shell "
+          "nodes origin + (i,j,k)*spacing (length units; spacing > 0, dims >= 2) -- the layout dem's grid-SDF particles and shell "
           "generation consume.")
       .def(
           "body_properties",
@@ -361,8 +364,9 @@ NB_MODULE(_geom, m) {
           },
           nb::arg("root"), nb::arg("lo"), nb::arg("hi"), nb::arg("n") = 32, nb::arg("order") = 5,
           nb::arg("nseg") = 8, nb::arg("density") = 1.0,
-          "Mass properties of {subtree < 0} over [lo, hi] (which MUST contain the solid), constant "
-          "density, by implicit quadrature: dict with volume, mass, com, inertia_tensor (3,3 about "
+          "Mass properties of {subtree < 0} over [lo, hi] (length units; MUST contain the solid), "
+          "constant density > 0 (mass/length^3 units), by implicit quadrature on n^3 cells with "
+          "Gauss order in {1..6, 8} and nseg in [2, 64]: dict with volume, mass, com, inertia_tensor (3,3 about "
           "the COM), principal (3, ascending), rotation (3,3; columns = principal axes, "
           "p_input = com + R p_body) and quat (x,y,z,w). Sign-exact bracketing means bound-only "
           "leaves (ellipsoid, superquadric, CSG) carry NO systematic bias; measured ~4e-6 relative "
