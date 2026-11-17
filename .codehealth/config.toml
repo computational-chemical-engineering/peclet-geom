@@ -1,0 +1,124 @@
+# cce-code-health gate for peclet.geom, user-facing round WO-35. Adapted from core-health-api's (python/ layer).
+#
+# Run with PECLET_SUITE=<suite checkout> set. The core headers (peclet/core/geom/*.hpp, vendored from core) are
+# pinned to $PECLET_SUITE/core with PECLET_SIBLING_PECLET_CORE on both sides: the base side builds under
+# <git-common-dir>/codehealth/base-<sha>, where the sibling ../../core is absent and cmake/PecletDeps.cmake would
+# otherwise FETCH core at PECLET_CORE_TAG, and the two sides would compile different headers.
+#
+# geom has no clang-format check of its own (no .clang-format; geom_bindings.cpp is not clang-formatted under
+# any style in the tree). New binding-only headers (python/*.hpp) are held to core's .clang-format, the style
+# the bindings came from; the existing .cpp is left as it is.
+# Tests: state_hash.py --check against the committed reference (the CI byte gate) plus the python/test_*.py
+# pytest files; state_hash exits 77 on another toolchain -> fail_regex.
+schema = 1
+
+[profiles]
+python = "python@0"
+cpp = "cpp@0"
+
+[scope]
+include = ["python/*"]
+
+[gate]
+frozen = ["cmake/*"]
+forbid = []
+literals = false
+public_api = false
+flags = true
+keep_going = false
+prefix = ': "${PECLET_SUITE:?set PECLET_SUITE to the suite checkout}" && export VIRTUAL_ENV="$PECLET_SUITE/.venv" PATH="$PECLET_SUITE/.venv/bin:$PATH" &&'
+
+[gate.env]
+OMP_NUM_THREADS = "1"
+OMP_PROC_BIND = "false"
+OPENBLAS_NUM_THREADS = "1"
+MKL_NUM_THREADS = "1"
+PYTHONHASHSEED = "0"
+
+[[gate.tier]]
+name = "clang_format"
+kind = "command"
+behaviour = false
+cadence = "step"
+timeout = 120
+cmd = '''cd {repo} && for f in $(git ls-files 'python/*.hpp'); do \
+  $PECLET_SUITE/.venv/bin/clang-format --style=file:$PECLET_SUITE/core/.clang-format --dry-run --Werror "$f" || exit 1; \
+  done'''
+
+[[gate.tier]]
+name = "build_host"
+kind = "command"
+behaviour = false
+cadence = "step"
+timeout = 900
+cmd = '''cmake -S {repo}/python -B {repo}/build_health_py -DCMAKE_BUILD_TYPE=Release \
+  -DPECLET_SIBLING_PECLET_CORE=$PECLET_SUITE/core -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+  && cmake --build {repo}/build_health_py -j16'''
+
+[[gate.tier]]
+name = "tests"
+kind = "command"
+cadence = "step"
+timeout = 900
+skip_exit = 77
+fail_regex = 'SKIPPED|skipped'
+cmd = '''cmake -S {repo}/python -B {repo}/build_health_py -DCMAKE_BUILD_TYPE=Release \
+  -DPECLET_SIBLING_PECLET_CORE=$PECLET_SUITE/core -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null \
+  && cmake --build {repo}/build_health_py -j16 >/dev/null \
+  && cd {repo} && PYTHONPATH={repo}/build_health_py python python/state_hash.py --check python/state_hash_reference.json \
+  && t=$(git ls-files 'python/test_*.py') && if [ -n "$t" ]; then \
+     PYTHONPATH={repo}/build_health_py python -m pytest -q -p no:cacheprovider $t; fi'''
+
+[[gate.tier]]
+name = "state_hash"
+kind = "reference"
+cadence = "step"
+timeout = 900
+fail_regex = 'skipped|SKIPPED'
+outputs = ["hashes.txt"]
+cmd = '''cmake -S {repo}/python -B {repo}/build_health_py -DCMAKE_BUILD_TYPE=Release \
+  -DPECLET_SIBLING_PECLET_CORE=$PECLET_SUITE/core -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null \
+  && cmake --build {repo}/build_health_py -j16 >/dev/null \
+  && PYTHONPATH={repo}/build_health_py python {repo}/python/state_hash.py > {out}/hashes.txt \
+  && cat {out}/hashes.txt'''
+
+# API identity (RULES "Gating a user-facing round"): every public name's nanobind signature and defaults,
+# docstrings excluded. A user-facing round may change docstrings and add checks, never a name, a parameter,
+# a default or a return type; base and head must print the same bytes.
+[[gate.tier]]
+name = "nb_signatures"
+kind = "reference"
+cadence = "step"
+timeout = 900
+outputs = ["signatures.txt"]
+cmd = '''cmake -S {repo}/python -B {repo}/build_health_py -DCMAKE_BUILD_TYPE=Release \
+  -DPECLET_SIBLING_PECLET_CORE=$PECLET_SUITE/core -DCMAKE_EXPORT_COMPILE_COMMANDS=ON >/dev/null \
+  && cmake --build {repo}/build_health_py -j16 >/dev/null \
+  && PYTHONPATH={repo}/build_health_py python - > {out}/signatures.txt <<'PY' || exit 1
+import peclet.geom._geom as m
+
+
+def sig(f):
+    s = getattr(f, "__nb_signature__", None) if f is not None else None
+    return [f"{t[0]} defaults={t[2]!r}" for t in s] if s else []
+
+
+out = []
+for n in sorted(dir(m)):
+    if n.startswith("__") or n == "build_toolchain":
+        continue
+    o = getattr(m, n)
+    if isinstance(o, type):
+        out.append(f"class {n}")
+        for k, v in sorted(o.__dict__.items()):
+            if isinstance(v, property):
+                out += [f"  {n}.{k}.{p} {s}" for p in ("fget", "fset") for s in sig(getattr(v, p))]
+            else:
+                out += [f"  {n}.{k} {s}" for s in sig(getattr(v, "__func__", v))]
+    elif sig(o):
+        out += [f"{n} {s}" for s in sig(o)]
+    else:
+        out.append(f"{n} = <{type(o).__name__}>")
+print("\n".join(out))
+PY
+test -s {out}/signatures.txt && cat {out}/signatures.txt'''
