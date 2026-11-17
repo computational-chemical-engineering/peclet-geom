@@ -127,7 +127,8 @@ NB_MODULE(_geom, m) {
           [](PyScene& s, const std::string& kind, std::vector<double> params,
              std::array<double, 3> translation, std::array<double, 4> rotation, double scale) {
             const int leafKind = kindFromName(kind);
-            chk::leaf(leafKind, kind, params, translation, rotation, scale);
+            chk::leafParams(leafKind, kind, params);
+            chk::transform("SceneBuilder.add_leaf", translation, rotation, scale);
             std::initializer_list<double> il{};  // addLeaf takes an initializer_list; go via node
             g::ShapeNode<double> nd;
             nd.kind = leafKind;
@@ -224,7 +225,8 @@ NB_MODULE(_geom, m) {
           [](PyScene& s, int root, std::array<double, 3> t, std::array<double, 4> q, double sc,
              std::array<double, 3> lin, std::array<double, 3> ang, std::array<double, 3> cen,
              int material) {
-            chk::instance(t, q, sc, lin, ang, cen);
+            chk::transform("SceneBuilder.add_instance", t, q, sc);
+            chk::motion(lin, ang, cen);
             return s.b.addInstance(root, makeTransform(t, q, sc),
                                    Vec3<double>{lin[0], lin[1], lin[2]},
                                    Vec3<double>{ang[0], ang[1], ang[2]},

@@ -105,10 +105,10 @@ inline LeafShape leafShape(int kind) {
   }
 }
 
-/// add_leaf: exactly the kind's parameter count; lengths finite and >= 0 (0 is a degenerate but
-/// well-defined shape), the superquadric exponent finite and > 0; then the leaf's transform.
-inline void leaf(int kind, const std::string& kindName, const std::vector<double>& params,
-                 const std::array<double, 3>& t, const std::array<double, 4>& q, double s) {
+/// add_leaf's params: exactly the kind's parameter count; lengths finite and >= 0 (0 is a
+/// degenerate but well-defined shape), the superquadric exponent finite and > 0. The leaf's
+/// transform is checked by transform().
+inline void leafParams(int kind, const std::string& kindName, const std::vector<double>& params) {
   const char* who = "SceneBuilder.add_leaf";
   const LeafShape shape = leafShape(kind);
   if (params.size() != shape.count) {
@@ -126,16 +126,14 @@ inline void leaf(int kind, const std::string& kindName, const std::vector<double
            params[i]);
     }
   }
-  transform(who, t, q, s);
 }
 
-/// add_instance: a transform, finite velocities, and a centre that is all NaN (the default: it
-/// follows the body) or all finite (pinned in world coordinates).
-inline void instance(const std::array<double, 3>& t, const std::array<double, 4>& q, double s,
-                     const std::array<double, 3>& lin, const std::array<double, 3>& ang,
-                     const std::array<double, 3>& center) {
+/// add_instance's motion: finite velocities, and a centre that is all NaN (the default: it
+/// follows the body) or all finite (pinned in world coordinates). The transform is checked by
+/// transform().
+inline void motion(const std::array<double, 3>& lin, const std::array<double, 3>& ang,
+                   const std::array<double, 3>& center) {
   const char* who = "SceneBuilder.add_instance";
-  transform(who, t, q, s);
   finiteEach(who, "lin_vel", lin, "length/time units");
   finiteEach(who, "ang_vel", ang, "1/time units");
   const bool follows = std::isnan(center[0]) && std::isnan(center[1]) && std::isnan(center[2]);
